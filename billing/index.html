@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulir Pengisian Penagihan Email</title>
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Email.js SDK -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<!-- CSS In -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Formulir Pengisian Penagihan Email</h2>
+    <form id="billingForm">
+        <div class="form-group">
+            <label for="name">Nama yang akan ditagih:</label>
+            <input type="text" id="nama_lengkap" name="nama_lengkap" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email Yang dituju:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="periode">Periode:</label>
+            <input type="text" id="periode" name="periode" required>
+        </div>
+        <div class="form-group">
+            <label for="harga">Harga Tagihan:</label>
+            <input type="text" id="harga" name="harga" required>
+        </div>
+        <div class="form-group">
+            <button type="submit">Kirim Penagihan</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Inisialisasi Email.js dengan user ID Anda
+    emailjs.init('jBMHYWQF2i5Vg26g5');
+
+    // Fungsi yang akan dipanggil saat formulir dikirim
+    function submitBillingForm(event) {
+        event.preventDefault(); // Mencegah perilaku formulir bawaan
+    
+        // Ambil nilai dari setiap input formulir
+        const nama = document.getElementById('nama_lengkap').value;
+        const akun = document.getElementById('email').value;
+        const periode = document.getElementById('periode').value;
+        const harga = document.getElementById('harga').value;
+        
+        // Periksa apakah alamat email tidak kosong
+        if (!akun) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan',
+                text: 'Alamat email tidak boleh kosong.',
+                confirmButtonColor: '#4070f4'
+            });
+            return; // Berhenti eksekusi jika alamat email kosong
+        }
+    
+        // Bangun objek data dengan nilai-nilai dari input formulir
+        const data = {
+            subject: `Kayol Billing For ${nama}`,
+            nama: nama,
+            akun: akun,
+            periode: periode,
+            harga: harga,
+            pesan: `Dengan penuh hormat, kami dari tim Kayol ingin memberitahukan kepada ${nama} bahwa tagihan Anda telah mencapai jumlah ${harga} dari periode ${periode} yang lalu. Kami sangat menghargai kerja sama Anda dalam hal ini. Mohon untuk memperhatikan pembayaran yang segera agar kami dapat terus memberikan layanan terbaik kepada Anda. Terima kasih atas perhatiannya yang telah Anda berikan`
+        };
+    
+        // Menampilkan SweetAlert "Mengirim Penagihan..."
+        const sendingAlert = Swal.fire({
+            title: 'Mengirim penagihan...',
+            text: 'Harap tunggu sebentar.',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    
+        // Kirim data melalui Email.js
+        emailjs.send('service_58ppfen', 'template_o021tcn', data)
+            .then(response => {
+                console.log('Penagihan terkirim dengan sukses:', response);
+                // Menutup SweetAlert "Mengirim Penagihan..."
+                sendingAlert.close();
+    
+                // Menampilkan SweetAlert "Penagihan terkirim"
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Penagihan Terkirim!',
+                    text: 'Terima kasih atas penagihannya.',
+                    confirmButtonColor: '#4070f4'
+                });
+    
+                // Tindakan atau logika lainnya setelah penagihan terkirim
+            })
+            .catch(error => {
+                console.error('Error saat mengirim penagihan:', error);
+                // Menutup SweetAlert "Mengirim Penagihan..."
+                sendingAlert.close();
+    
+                // Menampilkan SweetAlert "Penagihan Gagal"
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Penagihan Gagal',
+                    text: 'Gagal mengirim penagihan. Silakan coba lagi nanti.',
+                    confirmButtonColor: '#4070f4'
+                });
+            });
+    }
+    
+    // Menambahkan event listener untuk formulir pada saat pengiriman
+    document.addEventListener('DOMContentLoaded', function() {
+        const billingForm = document.getElementById('billingForm');
+        billingForm.addEventListener('submit', submitBillingForm);
+    });
+</script>
+</body>
+</html>

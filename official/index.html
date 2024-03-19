@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulir Pengisian Pesan Email</title>
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Email.js SDK -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<!-- CSS In -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Formulir Pengisian Pesan Email</h2>
+    <form id="myForm">
+        <div class="form-group">
+            <label for="name">Subject / Judul:</label>
+            <input type="text" id="judul" name="judul" required>
+        </div>
+        <div class="form-group">
+            <label for="name">Nama:</label>
+            <input type="text" id="nama_lengkap" name="nama_lengkap" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email Yang dituju:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="message">Pesan:</label>
+            <textarea id="pesan" name="pesan" required></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit">Kirim Pesan</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Inisialisasi Email.js dengan user ID Anda
+    emailjs.init('jBMHYWQF2i5Vg26g5');
+
+    // Fungsi yang akan dipanggil saat formulir dikirim
+    function submitForm(event) {
+        event.preventDefault(); // Mencegah perilaku formulir bawaan
+    
+        // Ambil nilai dari setiap input formulir
+        const nama = document.getElementById('nama_lengkap').value;
+        const subject = document.getElementById('judul').value;
+        const akun = document.getElementById('email').value;
+        const pesan = document.getElementById('pesan').value;
+        
+        // Periksa apakah alamat email tidak kosong
+        if (!akun) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan',
+                text: 'Alamat email tidak boleh kosong.',
+                confirmButtonColor: '#4070f4'
+            });
+            return; // Berhenti eksekusi jika alamat email kosong
+        }
+    
+        // Bangun objek data dengan nilai-nilai dari input formulir
+        const data = {
+            subject: subject,
+            nama: nama,
+            akun: akun,
+            pesan: pesan
+        };
+    
+        // Menampilkan SweetAlert "Mengirim Pesan..."
+        const sendingAlert = Swal.fire({
+            title: 'Mengirim laporan...',
+            text: 'Harap tunggu sebentar.',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    
+        // Kirim data melalui Email.js
+        emailjs.send('service_4c2web5', 'template_o021tcn', data)
+            .then(response => {
+                console.log('Email terkirim dengan sukses:', response);
+                // Menutup SweetAlert "Mengirim Pesan..."
+                sendingAlert.close();
+    
+                // Menampilkan SweetAlert "Laporan terkirim"
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Laporan Terkirim!',
+                    text: 'Terima kasih atas laporannya.',
+                    confirmButtonColor: '#4070f4'
+                });
+    
+                // Tindakan atau logika lainnya setelah email terkirim
+            })
+            .catch(error => {
+                console.error('Error saat mengirim email:', error);
+                // Menutup SweetAlert "Mengirim Pesan..."
+                sendingAlert.close();
+    
+                // Menampilkan SweetAlert "Laporan Gagal"
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Laporan Gagal',
+                    text: 'Gagal mengirim laporan. Silakan coba lagi nanti.',
+                    confirmButtonColor: '#4070f4'
+                });
+            });
+    }
+    
+    // Menambahkan event listener untuk formulir pada saat pengiriman
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('myForm');
+        form.addEventListener('submit', submitForm);
+    });
+</script>
+</body>
+</html>
