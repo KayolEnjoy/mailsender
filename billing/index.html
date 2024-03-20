@@ -39,88 +39,116 @@
 </div>
 
 <script>
-    // Inisialisasi Email.js dengan user ID Anda
-    emailjs.init('jBMHYWQF2i5Vg26g5');
+        // Inisialisasi Email.js dengan user ID Anda
+        emailjs.init('jBMHYWQF2i5Vg26g5'); // Ganti YOUR_USER_ID dengan user ID Email.js Anda
 
-    // Fungsi yang akan dipanggil saat formulir dikirim
-    function submitBillingForm(event) {
-        event.preventDefault(); // Mencegah perilaku formulir bawaan
-    
-        // Ambil nilai dari setiap input formulir
-        const nama = document.getElementById('nama_lengkap').value;
-        const akun = document.getElementById('email').value;
-        const periode = document.getElementById('periode').value;
-        const harga = document.getElementById('harga').value;
-        
-        // Periksa apakah alamat email tidak kosong
-        if (!akun) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Alamat email tidak boleh kosong.',
-                confirmButtonColor: '#4070f4'
-            });
-            return; // Berhenti eksekusi jika alamat email kosong
-        }
-    
-        // Bangun objek data dengan nilai-nilai dari input formulir
-        const data = {
-            subject: `Kayol Billing For ${nama}`,
-            nama: nama,
-            akun: akun,
-            periode: periode,
-            harga: harga,
-            pesan: `Dengan penuh hormat, kami dari tim Kayol ingin memberitahukan kepada ${nama} bahwa tagihan Anda telah mencapai jumlah ${harga} dari periode ${periode} yang lalu. Kami sangat menghargai kerja sama Anda dalam hal ini. Mohon untuk memperhatikan pembayaran yang segera agar kami dapat terus memberikan layanan terbaik kepada Anda. Terima kasih atas perhatiannya yang telah Anda berikan`
-        };
-    
-        // Menampilkan SweetAlert "Mengirim Penagihan..."
-        const sendingAlert = Swal.fire({
-            title: 'Mengirim penagihan...',
-            text: 'Harap tunggu sebentar.',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            willOpen: () => {
-                Swal.showLoading();
+        // Fungsi untuk mendapatkan waktu saat ini dan mengembalikan salam yang sesuai
+        function getSalam() {
+            const jam = new Date().getHours();
+            let salam = "";
+
+            if (jam < 11) {
+                salam = "Selamat Pagi";
+            } else if (jam < 15) {
+                salam = "Selamat Siang";
+            } else if (jam < 18) {
+                salam = "Selamat Sore";
+            } else {
+                salam = "Selamat Malam";
             }
-        });
-    
-        // Kirim data melalui Email.js
-        emailjs.send('service_58ppfen', 'template_o021tcn', data)
-            .then(response => {
-                console.log('Penagihan terkirim dengan sukses:', response);
-                // Menutup SweetAlert "Mengirim Penagihan..."
-                sendingAlert.close();
-    
-                // Menampilkan SweetAlert "Penagihan terkirim"
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Penagihan Terkirim!',
-                    text: 'Terima kasih atas penagihannya.',
-                    confirmButtonColor: '#4070f4'
-                });
-    
-                // Tindakan atau logika lainnya setelah penagihan terkirim
-            })
-            .catch(error => {
-                console.error('Error saat mengirim penagihan:', error);
-                // Menutup SweetAlert "Mengirim Penagihan..."
-                sendingAlert.close();
-    
-                // Menampilkan SweetAlert "Penagihan Gagal"
+
+            return salam;
+        }
+
+        // Fungsi untuk mengisi template email dengan data formulir dan salam
+        function isiDataEmail() {
+            // Ambil nilai dari setiap input formulir
+            const nama = document.getElementById('nama_lengkap').value;
+            const akun = document.getElementById('email').value;
+            const periode = document.getElementById('periode').value;
+            const harga = document.getElementById('harga').value;
+
+            // Periksa apakah alamat email tidak kosong
+            if (!akun) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Penagihan Gagal',
-                    text: 'Gagal mengirim penagihan. Silakan coba lagi nanti.',
+                    title: 'Kesalahan',
+                    text: 'Alamat email tidak boleh kosong.',
                     confirmButtonColor: '#4070f4'
                 });
+                return; // Berhenti eksekusi jika alamat email kosong
+            }
+
+            // Bangun objek data dengan nilai-nilai dari input formulir
+            const data = {
+                subject: `Kayol Billing For ${nama}`,
+                nama: nama,
+                akun: akun,
+                periode: periode,
+                harga: harga,
+                salam: getSalam(),
+                pesan: `Dengan penuh hormat, kami dari tim Kayol ingin memberitahukan kepada ${nama} bahwa tagihan Anda telah mencapai jumlah ${harga} dari periode ${periode} yang lalu. Kami sangat menghargai kerja sama Anda dalam hal ini. Mohon untuk memperhatikan pembayaran yang segera agar kami dapat terus memberikan layanan terbaik kepada Anda. Terima kasih atas perhatiannya yang telah Anda berikan`
+            };
+
+            return data;
+        }
+
+        // Fungsi yang akan dipanggil saat formulir dikirim
+        function submitBillingForm(event) {
+            event.preventDefault(); // Mencegah perilaku formulir bawaan
+
+            // Mendapatkan data formulir dan salam
+            const data = isiDataEmail();
+
+            // Menampilkan SweetAlert "Mengirim Penagihan..."
+            const sendingAlert = Swal.fire({
+                title: 'Mengirim penagihan...',
+                text: 'Harap tunggu sebentar.',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
             });
-    }
-    
-    // Menambahkan event listener untuk formulir pada saat pengiriman
-    document.addEventListener('DOMContentLoaded', function() {
-        const billingForm = document.getElementById('billingForm');
-        billingForm.addEventListener('submit', submitBillingForm);
-    });
+
+            // Kirim data melalui Email.js
+            emailjs.send('service_58ppfen', 'template_o021tcn', data)
+                .then(response => {
+                    console.log('Penagihan terkirim dengan sukses:', response);
+                    // Menutup SweetAlert "Mengirim Penagihan..."
+                    sendingAlert.close();
+
+                    // Menampilkan SweetAlert "Penagihan terkirim"
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Penagihan Terkirim!',
+                        text: 'Terima kasih atas penagihannya.',
+                        confirmButtonColor: '#4070f4'
+                    });
+
+                    // Tindakan atau logika lainnya setelah penagihan terkirim
+                })
+                .catch(error => {
+                    console.error('Error saat mengirim penagihan:', error);
+                    // Menutup SweetAlert "Mengirim Penagihan..."
+                    sendingAlert.close();
+
+                    // Menampilkan SweetAlert "Penagihan Gagal"
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Penagihan Gagal',
+                        text: 'Gagal mengirim penagihan. Silakan coba lagi nanti.',
+                        confirmButtonColor: '#4070f4'
+                    });
+                });
+        }
+
+        // Menambahkan event listener untuk formulir pada saat pengiriman
+        document.addEventListener('DOMContentLoaded', function () {
+            const billingForm = document.getElementById('billingForm');
+            billingForm.addEventListener('submit', submitBillingForm);
+        });
+
 </script>
 </body>
 </html>
