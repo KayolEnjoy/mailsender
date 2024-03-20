@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulir Pengisian Penagihan Email Pelanggan</title>
+<title>Formulir Pengisian Penagihan Email</title>
 <!-- SweetAlert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Email.js SDK -->
@@ -83,6 +83,7 @@
             const data = {
                 subject: `Kayol Billing For ${nama}`,
                 nama: nama,
+                nama_email: 'layanan Penagihan Kayol',
                 akun: akun,
                 periode: periode,
                 harga: harga,
